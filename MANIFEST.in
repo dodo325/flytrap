@@ -1,0 +1,20 @@
+graft docs
+graft flytrap
+graft tests
+
+include .bumpversion.cfg
+include .cookiecutterrc
+include .coveragerc
+include .editorconfig
+include .pre-commit-config.yaml
+include .readthedocs.yml
+include pytest.ini
+
+include HISTORY.rst
+include README.rst
+
+recursive-include tests *
+recursive-exclude * __pycache__
+recursive-exclude * *.py[cod]
+
+recursive-include docs *.rst conf.py Makefile make.bat *.jpg *.png *.gif

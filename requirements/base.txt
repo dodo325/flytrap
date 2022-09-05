@@ -1,0 +1,13 @@
+rich  # https://github.com/Textualize/rich
+typer[all]  # https://github.com/tiangolo/typer
+
+# Web
+Flask
+Flask-Session
+flask_cors
+
+Jinja2
+MarkupSafe
+
+# Utility
+itsdangerous

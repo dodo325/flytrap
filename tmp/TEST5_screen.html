@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Test JS</title>
+</head>
+<body>
+
+  <script>
+    console.log(
+      "Screen Width: " + screen.width
+    );
+    console.log(
+      "Screen Height: " + screen.height
+    );
+    console.log(
+      "Available Screen Width: " + screen.availWidth
+    );
+    console.log(
+      "Available Screen Height: " + screen.availHeight
+    );
+    console.log(
+      "Screen Color Depth: " + screen.colorDepth
+    );
+    console.log(
+      "Screen Pixel Depth: " + screen.pixelDepth
+    );
+
+    /*
+    For height:
+    document.body.clientHeight  // Inner height of the HTML document body, including padding
+                            // but not the horizontal scrollbar height, border, or margin
+
+screen.height               // Device screen height (i.e. all physically visible stuff)
+screen.availHeight          // Device screen height minus the operating system taskbar (if present)
+window.innerHeight          // The current document's viewport height, minus taskbars, etc.
+window.outerHeight          // Height the current window visibly takes up on screen
+                            // (including taskbars, menus, etc.)
+                            Complete guide related to Screen sizes
+
+JavaScript
+
+For height:
+
+document.body.clientHeight  // Inner height of the HTML document body, including padding
+                            // but not the horizontal scrollbar height, border, or margin
+
+screen.height               // Device screen height (i.e. all physically visible stuff)
+screen.availHeight          // Device screen height minus the operating system taskbar (if present)
+window.innerHeight          // The current document's viewport height, minus taskbars, etc.
+window.outerHeight          // Height the current window visibly takes up on screen
+                            // (including taskbars, menus, etc.)
+Note: When the window is maximized this will equal screen.availHeight
+
+For width:
+
+
+
+
+    */
+  </script>
+</body>
+</html>

@@ -1,11 +1,20 @@
-from flask import Flask, request
-from flask import session
+from flask import Flask, request, render_template
 from rich import print
-app = Flask(__name__)
+
+app = Flask(
+    __name__,
+    template_folder="./templates",
+    static_folder="./static"
+)
 
 
 @app.route("/")
-def hello_world():
+def base_view():
+    context = {}
+
+    url = "https://gitlab.com/moneyhand2/moneyhand-react-web"
+
+    # app.logger.warning
     print("  ## method = ")
     print(request.method)
     print("  ## headers = ")
@@ -47,4 +56,6 @@ def hello_world():
     print("  ## request.environ = ")
     print(request.environ)
 
-    return "<p>Hello, World!</p>"
+    context["url"] = url
+    return render_template("redirect.html", context=context)
+    # "<p>Hello, World!</p>"

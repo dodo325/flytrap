@@ -13,8 +13,8 @@
     var d = new Date();
     var amount = 150000000;
     var estprocessor = 1.7; //average processor speed, in GHZ
-    console.log("JSBenchmark by Aaron Becker, running loop "+amount+" times.     Estimated time (for "+estprocessor+"ghz processor) is "+(Math.round(((_speedconstant*amount)/estprocessor)*100)/100)+"s");
-    for (var i = amount; i>0; i--) {}
+    console.log("JSBenchmark by Aaron Becker, running loop " + amount + " times.     Estimated time (for "+estprocessor+"ghz processor) is "+(Math.round(((_speedconstant*amount)/estprocessor)*100)/100)+"s");
+    for (var i = amount; i > 0; i--) {}
     var newd = new Date();
     var accnewd = Number(String(newd.getSeconds())+"."+String(newd.getMilliseconds()));
     var accd = Number(String(d.getSeconds())+"."+String(d.getMilliseconds()));

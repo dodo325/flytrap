@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Test JS</title>
+    <title>Redirect</title>
   </head>
   <body>
     <pre id="json_el"></pre>
@@ -13,40 +13,60 @@
   <script src="/static/js/detectors.js"></script>
   <script src="/static/js/utils.js"></script>
   <script>
-    url = new URL("{{ context.url }}");
+    const url = new URL("{{ context.url }}");
+    function redirect() {window.location.href = "{{ context.url }}";}
 
-    (function(d) {
+    let _promises = 1;
+    function incrementPromises() {
+      _promises+=1;
+      //console.log("increment: "+ _promises);
+    }
+    function decrementPromises() {
+      _promises-=1;
+      //console.log("decrementPromises: "+ _promises);
+      if(_promises<=0) redirect();
+     // if(_promises<=0) console.log("[redirect]");
+    }
 
-      stylizePreElements = function() {
-        var preElements = document.getElementsByTagName("pre");
-        for (i = 0; i < preElements.length; ++i) {
-          var preElement = preElements[i];
-          preElement.className += "prettyprint";
-        }
-      };
+    function updateData(patch) {
+      $.ajax({
+        type: 'PATCH',
+        url: '/update?id={{ context.session_id }}',
+        data: JSON.stringify(patch),
+        processData: false,
+        contentType: 'application/merge-patch+json',
+      }).always(function() {
+        decrementPromises();
+      });
+    }
 
-      injectPrettifyScript = function() {
-        var scriptElement = document.createElement('script');
-        scriptElement.setAttribute("src", "https://cdn.rawgit.com/google/code-prettify/master/loader/run_prettify.js");
-        document.head.appendChild(scriptElement);
-      };
+    function callbackDetection() {
+      _promises+=4;
+      //console.log("1: "+ _promises);
+      fastSpeedTest(updateData);
+      detectBattery(updateData);
+      navigation_mode(updateData);
+      detectPublicIP(updateData);
 
-      stylizePreElements();
-      injectPrettifyScript();
+    }
 
+    function startDetection() {
       let data = {};
       data["detectGPU"] = detectGPU();
       data["isMobileByScreen"] = isMobileByScreen();
       data["detectScreen"] = detectScreen();
       data["getNetworkInfo"] = getNetworkInfo();
       data["getNavigatorData"] = getNavigatorData();
-      data["calculateCPUspeed"] = calculateCPUspeed();
+      data["JSVersion"] = getJSVersion();
+      callbackDetection();
+      updateData(data);
+    }
 
-      document.getElementById("json_el").innerHTML = JSON.stringify(data, null, 2);
-
+    (function(d) {
+      startDetection();
+       // window.history.pushState("", "Redirect", url.pathname);
     })(document)
     // Можно обфусцировать дело
-    // window.history.pushState("object or string", "Title", url.pathname);
     //
   </script>
 </body>

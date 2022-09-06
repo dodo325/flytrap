@@ -13,8 +13,8 @@
     var performance = window.performance || window.mozPerformance || window.msPerformance || window.webkitPerformance || {};
 
     document.write("<br>");
-    for (var value in performance) {
-      document.write(value + "<br>");
+    for (let key in performance) {
+      document.write(key + " = " + performance[key] + "<br>");
     }
 
     document.write("<br><br><br>");

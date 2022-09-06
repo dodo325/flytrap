@@ -65,6 +65,8 @@
           batterySupported.innerHTML = error.message;
       };
 
+      // TODO: В современных Firefox не работает
+
       navigator.getBattery() //returns a promise
           .then(success)
           .catch(noGood);

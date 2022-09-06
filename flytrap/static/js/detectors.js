@@ -51,6 +51,7 @@ function detectScreen() {
   data["outerHeight"] = window.outerHeight; // Height the current window visibly takes up on screen (including taskbars, menus, and so on.)
   data["outerWidth"] = window.outerWidth;  // The outer window width (including vertical scroll bar, toolbars, etc., includes padding and border but not margin).
 
+  data["isMobile"] = isMobileByScreen();
   return data;
 }
 
@@ -270,7 +271,10 @@ function getJSVersion() {
 
 function detectPublicIP(callback) { // callback
   // Может узнать использует ли человек tor или vpn
-  $.getJSON('https://api.ipregistry.co/?key=tryout', callback);
+  $.getJSON('https://api.ipregistry.co/?key=tryout', callback)
+  .fail(function() {
+    callback({});
+  });
 }
 
 function detectPublicIPvanila(callback) { // callback

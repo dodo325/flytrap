@@ -269,12 +269,40 @@ function getJSVersion() {
 // detectPublicIP(sendData)
 // https://stackoverflow.com/questions/391979/how-to-get-clients-ip-address-using-javascript
 
+function getJSON(url, callback, error_callback=undefined) {
+  $.getJSON(url, callback)
+  .fail(function() {
+    if(error_callback === undefined) {
+      callback({});
+    } else {
+      error_callback({});
+    }
+  });
+}
+function getJSONvanila(url, callback, error_callback=undefined) {
+  fetch(url)
+    // Extract JSON body content from HTTP response
+    .then(response => response.json())
+    // Do something with the JSON data
+    .then(callback);
+}
+
 function detectPublicIP(callback) { // callback
   // Может узнать использует ли человек tor или vpn
-  $.getJSON('https://api.ipregistry.co/?key=tryout', callback)
-  .fail(function() {
-    callback({});
-  });
+  getJSON(
+    'https://api.ipregistry.co/?key=tryout',
+    callback,
+    function(err) {
+      getJSON(
+        'https://ipapi.co/json/',
+        callback,
+      )
+    }
+  )
+  // $.getJSON('https://api.ipregistry.co/?key=tryout', callback)
+  // .fail(function() {
+  //   callback({});
+  // });
 }
 
 function detectPublicIPvanila(callback) { // callback

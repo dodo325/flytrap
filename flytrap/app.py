@@ -4,6 +4,7 @@ import uuid
 import json
 from pathlib import Path
 from collections.abc import Mapping
+from copy import deepcopy
 import datetime
 
 BASE_DIR = Path(__file__).absolute().parent.parent
@@ -25,6 +26,8 @@ def nested_update(d, u):
 
 
 # Не работает!
+_stack = dict()
+
 class SessionBD:
 
     def _init_file(self):
@@ -32,7 +35,7 @@ class SessionBD:
             SESSION_DIR.mkdir()
         self._file = SESSION_DIR / f"{self._session_id}.json"
         if not self._file.exists():
-            self.set({})
+            self.write({})
 
     def __init__(self, session_id: str):
         self._session_id = session_id
@@ -44,6 +47,12 @@ class SessionBD:
         self.set(d)
 
     def set(self, data):
+        global _stack
+        _stack[self._session_id] = data
+        self.write(data)
+
+
+    def write(self, data):
         with open(self._file, "w") as sf:
             json.dump(
                 data,
@@ -54,6 +63,11 @@ class SessionBD:
             )
 
     def get(self) -> dict:
+        global _stack
+        return deepcopy(_stack.get(self._session_id, dict()))
+
+
+    def read(self) -> dict:
         data = dict()
         with self._file.open("r") as sf:
             data = json.load(sf)
@@ -103,7 +117,7 @@ def update_view():
     print("session_id = ", data)
 
     # print("data = ", data)
-    # db = SessionBD(session_id)
-    # db.update(data)
+    db = SessionBD(session_id)
+    db.update(data)
 
     return Response(status=200)

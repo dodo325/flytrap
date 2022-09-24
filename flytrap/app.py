@@ -1,14 +1,12 @@
 from flask import Flask, request, render_template, Response
 from rich import print
 import uuid
-import json
-from pathlib import Path
-from collections.abc import Mapping
-from copy import deepcopy
 import datetime
+import os
+from .sessions import SessionBD
 
-BASE_DIR = Path(__file__).absolute().parent.parent
-SESSION_DIR = BASE_DIR / "session"
+
+TARGET_URL = os.environ.get("TARGET_URL", "http://example.com")
 
 app = Flask(
     __name__,
@@ -16,66 +14,9 @@ app = Flask(
     static_folder="./static"
 )
 
-def nested_update(d, u):
-    for k, v in u.items():
-        if isinstance(v, Mapping):
-            d[k] = nested_update(d.get(k, {}), v)
-        else:
-            d[k] = v
-    return d
-
-
-# Не работает!
-_stack = dict()
-
-class SessionBD:
-
-    def _init_file(self):
-        if not SESSION_DIR.is_dir():
-            SESSION_DIR.mkdir()
-        self._file = SESSION_DIR / f"{self._session_id}.json"
-        if not self._file.exists():
-            self.write({})
-
-    def __init__(self, session_id: str):
-        self._session_id = session_id
-        self._init_file()
-
-    def update(self, data: dict):
-        d = self.get()
-        nested_update(d, data)
-        self.set(d)
-
-    def set(self, data):
-        global _stack
-        _stack[self._session_id] = data
-        self.write(data)
-
-
-    def write(self, data):
-        with open(self._file, "w") as sf:
-            json.dump(
-                data,
-                sf,
-                ensure_ascii=False,
-                sort_keys=True,
-                indent=4
-            )
-
-    def get(self) -> dict:
-        global _stack
-        return deepcopy(_stack.get(self._session_id, dict()))
-
-
-    def read(self) -> dict:
-        data = dict()
-        with self._file.open("r") as sf:
-            data = json.load(sf)
-        return data
 
 def gen_session_id() -> str:
     return str(uuid.uuid4()).replace("-", "")
-
 
 def get_request_data():
     return {
@@ -91,18 +32,14 @@ def get_request_data():
 @app.route("/")
 def base_view():
     context = {}
-    print("BASE_DIR = ", BASE_DIR)
 
-    url = "https://gitlab.com/moneyhand2/moneyhand-react-web"
     session_id = gen_session_id()
     print("session_id = ", session_id)
     db = SessionBD(session_id)
 
     db.update(get_request_data())
-    # print("  ## request.environ = ")
-    # print(request.environ)
 
-    context["url"] = url
+    context["url"] = TARGET_URL
     context["session_id"] = session_id
     return render_template("redirect.html", context=context)
 

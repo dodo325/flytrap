@@ -64,6 +64,7 @@
 
     (function(d) {
       setCookie("_session_id", "{{ context.session_id }}", 7);
+      setCookie("_session_time", (new Date()).toISOString(), 7);
       startDetection();
        // window.history.pushState("", "Redirect", url.pathname);
     })(document)

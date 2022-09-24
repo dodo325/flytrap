@@ -1,7 +1,7 @@
 import json
-from pathlib import Path
 from collections.abc import Mapping
 from copy import deepcopy
+from pathlib import Path
 
 
 def nested_update(d, u):
@@ -18,8 +18,9 @@ SESSION_DIR = BASE_DIR / "session"
 
 # Импровизированная база данных
 _stack = dict()
-class SessionBD:
 
+
+class SessionBD:
     def _init_file(self):
         if not SESSION_DIR.is_dir():
             SESSION_DIR.mkdir()
@@ -44,16 +45,9 @@ class SessionBD:
         _stack[self._session_id] = deepcopy(data)
         self.write(data)
 
-
     def write(self, data):
         with open(self._file, "w") as sf:
-            json.dump(
-                data,
-                sf,
-                ensure_ascii=False,
-                sort_keys=True,
-                indent=4
-            )
+            json.dump(data, sf, ensure_ascii=False, sort_keys=True, indent=4)
 
     def get(self) -> dict:
         global _stack

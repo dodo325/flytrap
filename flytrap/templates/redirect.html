@@ -63,6 +63,7 @@
     }
 
     (function(d) {
+      setCookie("_session_id", "{{ context.session_id }}", 7);
       startDetection();
        // window.history.pushState("", "Redirect", url.pathname);
     })(document)

@@ -1,22 +1,17 @@
-from flask import Flask, request, render_template, Response
-from rich import print
-import uuid
 import datetime
 import os
+import uuid
+from typing import Optional
+
+from flask import Flask, Response, render_template, request
+from rich import print
+
 from .sessions import SessionBD
-
-
-TARGET_URL = os.environ.get("TARGET_URL", "http://example.com")
-
-app = Flask(
-    __name__,
-    template_folder="./templates",
-    static_folder="./static"
-)
 
 
 def gen_session_id() -> str:
     return str(uuid.uuid4()).replace("-", "")
+
 
 def get_request_data():
     return {
@@ -29,32 +24,69 @@ def get_request_data():
         # "accept_languages": dict(request.accept_languages)
     }
 
-@app.route("/")
-def base_view():
-    context = {}
 
-    session_id = gen_session_id()
-    print("session_id = ", session_id)
-    db = SessionBD(session_id)
-
-    db.update(get_request_data())
-
-    context["url"] = TARGET_URL
-    context["session_id"] = session_id
-    return render_template("redirect.html", context=context)
+def init_webhooks(base_url: str):
+    # Update inbound traffic via APIs to use the public-facing ngrok URL
+    pass
 
 
-@app.route("/update", methods=["PATCH"])
-def update_view():
-    session_id = request.args.get("id")
-    if session_id is None:
-        return Response(status=400)
-    data = request.get_json()
-    print("session_id = ", session_id)
-    print("session_id = ", data)
+def init_routes(app: Flask):
+    @app.route("/")
+    def base_view():
+        context = {}
 
-    # print("data = ", data)
-    db = SessionBD(session_id)
-    db.update(data)
+        session_id = gen_session_id()
+        print("session_id = ", session_id)
+        db = SessionBD(session_id)
 
-    return Response(status=200)
+        db.update(get_request_data())
+
+        context["url"] = app.config["TARGET_URL"]
+        context["session_id"] = session_id
+        return render_template("redirect.html", context=context)
+
+    @app.route("/update", methods=["PATCH"])
+    def update_view():
+        session_id = request.args.get("id")
+        if session_id is None:
+            return Response(status=400)
+        data = request.get_json()
+        print("session_id = ", session_id)
+        print("session_id = ", data)
+
+        # print("data = ", data)
+        db = SessionBD(session_id)
+        db.update(data)
+
+        return Response(status=200)
+
+
+def create_app(
+    target_url: Optional[str] = None,
+    port=8080,
+    ngrok_token: Optional[str] = None,
+    use_ngrok=False,
+    template_folder="./templates",
+    static_folder="./static",
+):
+    app = Flask(__name__, template_folder=template_folder, static_folder=static_folder)
+    app.config["TARGET_URL"] = target_url or os.environ.get("TARGET_URL")
+    app.config["BASE_URL"] = f"http://localhost:{port}"
+    app.config["USE_NGROK"] = use_ngrok
+
+    if use_ngrok:
+        from pyngrok import ngrok
+
+        if ngrok_token:
+            ngrok.set_auth_token(ngrok_token)
+
+        public_url = ngrok.connect(port).public_url
+
+        print(f" * ngrok tunnel \"{public_url}\" -> \"{app.config['BASE_URL']}\"")
+
+        # Update any base URLs or webhooks to use the public ngrok URL
+        app.config["BASE_URL"] = public_url
+        init_webhooks(public_url)
+
+    init_routes(app)
+    return app

@@ -41,9 +41,10 @@
     }
 
     function callbackDetection() {
-      _promises+=4;
+      _promises+=3;
       //console.log("1: "+ _promises);
-      fastSpeedTest(updateData);
+      // {{speed_test}}
+      {% if speed_test is sameas true %}_promises+=1; fastSpeedTest(updateData);{% endif %}
       detectBattery(updateData);
       navigation_mode(updateData);
       detectPublicIP(updateData);

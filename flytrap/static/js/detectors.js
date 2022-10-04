@@ -145,6 +145,7 @@ function detectBattery(callback) {
       .catch(noGood);
 
   } catch (error) {
+    callback({"error": error.message});
     console.warn(error.message);
   }
 }
@@ -163,7 +164,7 @@ function navigation_mode(callback){
           var storage = window.sessionStorage;
           try {
               storage.setItem("p123", "test");
-              storage.removeItem("p123");
+              storage.remododo325em("p123");
           } catch (e) {
               if (e.code === DOMException.QUOTA_EXCEEDED_ERR && storage.length === 0) {
                   nm_sendData('incognito')
@@ -227,6 +228,7 @@ function getClipboardContents(callback) {
       .then(success)
       .catch(noGood);
   } catch (err) {
+    callback({"error": err.message});
     console.error('Не удалось прочитать содержимое буфера обмена: ', err);
   }
 }

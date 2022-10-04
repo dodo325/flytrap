@@ -20,8 +20,7 @@ def get_request_data():
         "path": request.path,
         "headers": dict(request.headers),
         "cookies": dict(request.cookies),
-        "datetime": datetime.datetime.now().isoformat()
-        # "accept_languages": dict(request.accept_languages)
+        "datetime": datetime.datetime.now().isoformat(),
     }
 
 
@@ -36,13 +35,15 @@ def init_routes(app: Flask):
         context = {}
 
         session_id = gen_session_id()
-        print("session_id = ", session_id)
+        print("New session_id = ", session_id)
         db = SessionBD(session_id)
 
         db.update(get_request_data())
 
         context["url"] = app.config["TARGET_URL"]
         context["session_id"] = session_id
+        context["speed_test"] = app.config["SPEED_TEST"]
+
         return render_template("redirect.html", context=context)
 
     @app.route("/update", methods=["PATCH"])
@@ -51,8 +52,8 @@ def init_routes(app: Flask):
         if session_id is None:
             return Response(status=400)
         data = request.get_json()
-        print("session_id = ", session_id)
-        print("session_id = ", data)
+        print("Update data for session_id =", session_id)
+        # print("session_id = ", data)
 
         # print("data = ", data)
         db = SessionBD(session_id)
@@ -66,6 +67,7 @@ def create_app(
     port=8080,
     ngrok_token: Optional[str] = None,
     use_ngrok=False,
+    speed_test=True,
     template_folder="./templates",
     static_folder="./static",
 ):
@@ -73,6 +75,10 @@ def create_app(
     app.config["TARGET_URL"] = target_url or os.environ.get("TARGET_URL")
     app.config["BASE_URL"] = f"http://localhost:{port}"
     app.config["USE_NGROK"] = use_ngrok
+
+    app.config["SPEED_TEST"] = speed_test
+    print(" * Speed test: ", "on" if speed_test else "off")
+    print(" * Ngrok mode: ", "on" if use_ngrok else "off")
 
     if use_ngrok:
         from pyngrok import ngrok

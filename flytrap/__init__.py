@@ -4,7 +4,7 @@ __title__ = "flytrap"
 __summary__ = "People tracker on the Internet. Catch a user using your URL!"
 __url__ = "https://github.com/dodo325/flytrap/"
 
-__version__ = "0.1.0"
+__version__ = "0.2.1"
 
 __author__ = "dodo325"
 __email__ = "dodo101000101@gmail.com"

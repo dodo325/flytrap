@@ -1,7 +1,7 @@
 """Package for My Awesome Project"""
 
 __title__ = "flytrap"
-__summary__ = "Behold My Awesome Project!"
+__summary__ = "People tracker on the Internet. Catch a user using your URL!"
 __url__ = "https://github.com/dodo325/flytrap/"
 
 __version__ = "0.1.0"

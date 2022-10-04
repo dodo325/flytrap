@@ -40,19 +40,19 @@ From sources
 ------------
 
 The sources for flytrap can be downloaded from the
-`Github repo <https://github.com/veit/flytrap>`_.
+`Github repo <https://github.com/dodo325/flytrap>`_.
 
 You can either clone the public repository:
 
 .. code-block:: console
 
-    $ git clone git://github.com/veit/flytrap
+    $ git clone git://github.com/dodo325/flytrap
 
-Or download the `tarball <https://github.com/veit/flytrap/tarball/master>`_:
+Or download the `tarball <https://github.com/dodo325/flytrap/tarball/master>`_:
 
 .. code-block:: console
 
-    $ curl  -OL https://github.com/veit/flytrap/tarball/master
+    $ curl  -OL https://github.com/dodo325/flytrap/tarball/master
 
 Once you have a copy of the source, you can install it with:
 

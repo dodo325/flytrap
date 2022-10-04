@@ -48,7 +48,7 @@ master_doc = 'index'
 
 # General information about the project.
 project = 'flytrap'
-copyright = "2022, Veit Schiele"
+copyright = "2022, dodo325"
 author = flytrap.__author__
 
 # The version info for the project you're documenting, acts as replacement
@@ -128,7 +128,7 @@ latex_documents = [
         master_doc,
         'flytrap.tex',
         'flytrap Documentation',
-        'Veit Schiele',
+        'dodo325 Schiele',
         'manual',
     ),
 ]

@@ -1,5 +1,5 @@
 flytrap
-============
+=======
 
 .. toctree::
    :maxdepth: 4

@@ -1,7 +1,8 @@
 import json
 from collections.abc import Mapping
 from copy import deepcopy
-from pathlib import Path
+
+from . import configs
 
 
 def nested_update(d, u):
@@ -13,8 +14,7 @@ def nested_update(d, u):
     return d
 
 
-BASE_DIR = Path(__file__).absolute().parent.parent
-SESSION_DIR = BASE_DIR / "session"
+SESSION_DIR = configs.USER_SESSION_DIR
 
 # Импровизированная база данных
 _stack = dict()

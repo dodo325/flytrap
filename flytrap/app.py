@@ -62,12 +62,29 @@ def init_routes(app: Flask):
         return Response(status=200)
 
 
+def setup_ngrok(app):
+    from pyngrok import ngrok
+
+    if app.config["NGROK_TOKEN"]:
+        ngrok.set_auth_token(app.config["NGROK_TOKEN"])
+
+    public_url = ngrok.connect(app.config["PORT"]).public_url
+
+    print(f" * ngrok tunnel \"{public_url}\" -> \"{app.config['BASE_URL']}\"")
+
+    # Update any base URLs or webhooks to use the public ngrok URL
+    app.config["BASE_URL"] = public_url
+    init_webhooks(public_url)
+
+
 def create_app(
     target_url: Optional[str] = None,
     port=8080,
-    ngrok_token: Optional[str] = None,
     use_ngrok=False,
+    use_bitly=False,
     speed_test=True,
+    ngrok_token: Optional[str] = None,
+    bitly_token: Optional[str] = None,
     template_folder="./templates",
     static_folder="./static",
 ):
@@ -75,24 +92,17 @@ def create_app(
     app.config["TARGET_URL"] = target_url or os.environ.get("TARGET_URL")
     app.config["BASE_URL"] = f"http://localhost:{port}"
     app.config["USE_NGROK"] = use_ngrok
+    app.config["PORT"] = port
+
+    app.config["NGROK_TOKEN"] = ngrok_token
+    app.config["BITLY_TOKEN"] = bitly_token
 
     app.config["SPEED_TEST"] = speed_test
     print(" * Speed test: ", "on" if speed_test else "off")
     print(" * Ngrok mode: ", "on" if use_ngrok else "off")
 
     if use_ngrok:
-        from pyngrok import ngrok
-
-        if ngrok_token:
-            ngrok.set_auth_token(ngrok_token)
-
-        public_url = ngrok.connect(port).public_url
-
-        print(f" * ngrok tunnel \"{public_url}\" -> \"{app.config['BASE_URL']}\"")
-
-        # Update any base URLs or webhooks to use the public ngrok URL
-        app.config["BASE_URL"] = public_url
-        init_webhooks(public_url)
+        setup_ngrok(app)
 
     init_routes(app)
     return app

@@ -18,14 +18,40 @@ FlyTrap
 
 People tracker on the Internet. OSINT analysis and research tool by dodo325. Catch a user using your URL!
 
+
+Installing
+-----------
+
+.. code:: bash
+
+        pip install flytrap
+
 Features
---------
+-----------
 
+Detecters:
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+* Client screen parameters
+* GPU
+* calculate CPU speed
+* Speed Test
+* detect Battery
+* IP Geolocation
+* User-Agent detection
+* Network Info
+* JS Version
+* Social services detector
+* Cookie tracker
+* and other...
+
+Tunneling and anonymize:
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 - Ngrok tunnel
--
+- Bit.ly shortener
 
 
-TODO:
---------
+Documentation
+----------------------
 
--
+https://flytrap.readthedocs.io/en/latest/

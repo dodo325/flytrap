@@ -24,11 +24,6 @@ def get_request_data():
     }
 
 
-def init_webhooks(base_url: str):
-    # Update inbound traffic via APIs to use the public-facing ngrok URL
-    pass
-
-
 def init_routes(app: Flask):
     @app.route("/")
     def base_view():
@@ -62,7 +57,20 @@ def init_routes(app: Flask):
         return Response(status=200)
 
 
+def setup_bitly(app):
+    if not app.config["USE_BITLY"]:
+        return
+    from . import short_url
+
+    s = short_url.BitlyShortener(app.config["BITLY_TOKEN"])
+    public_url = s.short(app.config["BASE_URL"])
+    print(f" * bitly.com rederect \"{public_url}\" -> \"{app.config['BASE_URL']}\"")
+    app.config["BASE_URL"] = public_url
+
+
 def setup_ngrok(app):
+    if not app.config["USE_NGROK"]:
+        return
     from pyngrok import ngrok
 
     if app.config["NGROK_TOKEN"]:
@@ -74,7 +82,8 @@ def setup_ngrok(app):
 
     # Update any base URLs or webhooks to use the public ngrok URL
     app.config["BASE_URL"] = public_url
-    init_webhooks(public_url)
+
+    setup_bitly(app)
 
 
 def create_app(
@@ -92,17 +101,18 @@ def create_app(
     app.config["TARGET_URL"] = target_url or os.environ.get("TARGET_URL")
     app.config["BASE_URL"] = f"http://localhost:{port}"
     app.config["USE_NGROK"] = use_ngrok
+    app.config["USE_BITLY"] = use_bitly
     app.config["PORT"] = port
 
     app.config["NGROK_TOKEN"] = ngrok_token
     app.config["BITLY_TOKEN"] = bitly_token
 
     app.config["SPEED_TEST"] = speed_test
+
     print(" * Speed test: ", "on" if speed_test else "off")
     print(" * Ngrok mode: ", "on" if use_ngrok else "off")
 
-    if use_ngrok:
-        setup_ngrok(app)
+    setup_ngrok(app)
 
     init_routes(app)
     return app

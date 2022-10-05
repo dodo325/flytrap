@@ -23,13 +23,17 @@ app = typer.Typer()
 def run(
     target_url: str,
     ngrok: bool = True,
-    bitly: bool = True,
+    bitly: bool = False,
     speed_test: bool = False,
     port: int = 8080,
     ngrok_token: Optional[str] = typer.Option(None, envvar="NGROK_TOKEN"),
     bitly_token: Optional[str] = typer.Option(None, envvar="BITLY_TOKEN"),
 ):
     """Start the trap tunnel"""
+    data = configs.read_config_file()
+    ngrok_token = ngrok_token or data["ngrok_token"]
+    bitly_token = bitly_token or data["bitly_token"]
+
     app = create_app(
         target_url=target_url,
         ngrok_token=ngrok_token,

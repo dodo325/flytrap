@@ -22,9 +22,42 @@ People tracker on the Internet. OSINT analysis and research tool by dodo325. Cat
 Installing
 -----------
 
+Install with pip or your favorite PyPI package manager.
+
 .. code:: bash
 
         pip install flytrap
+
+
+Local start or build
+----------------------
+
+Clone repository.
+
+.. code:: bash
+
+    git clone https://github.com/dodo325/flytrap.git
+
+    cd flytrap
+
+Run without build.
+
+.. code:: bash
+
+    python -m flytrap
+
+Build:
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Use pip:
+
+.. code:: bash
+
+    pip install ".[test]"
+
+Or use Makefile:
+
+    make reinstall-dev
 
 Features
 -----------

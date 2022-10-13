@@ -57,6 +57,9 @@ Use pip:
 
 Or use Makefile:
 
+
+.. code:: bash
+
     make reinstall-dev
 
 Features

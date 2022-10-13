@@ -9,7 +9,8 @@ Flask~=2.2
 # flask_cors
 
 Jinja2~=3.1
-MarkupSafe~=2.1
+# MarkupSafe~=2.1
+MarkupSafe~=2.0
 
 # Utility
 itsdangerous~=2.1

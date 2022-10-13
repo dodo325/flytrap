@@ -44,6 +44,8 @@ Run without build.
 
 .. code:: bash
 
+    pip install -r requirements/local.txt
+
     python -m flytrap
 
 Build:

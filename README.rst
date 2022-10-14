@@ -77,7 +77,7 @@ Build (local)
 Run:
 .. code:: bash
 
-    docker run -it -v "$(pwd)"/.sessions/:/home/app/.flytrap/sessions/ -p 8080:8080 flytrap --help
+    docker run -it -v "$(pwd)"/.flytrap:/home/app/.flytrap/ -p 8080:8080 flytrap --help
 
 Features
 -----------

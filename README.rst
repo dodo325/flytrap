@@ -64,6 +64,21 @@ Or use Makefile:
 
     make reinstall-dev
 
+
+Docker:
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Build (local)
+.. code:: bash
+
+    docker build -t flytrap .
+
+
+Run:
+.. code:: bash
+
+    docker run -it -v "$(pwd)"/.sessions/:/home/app/.flytrap/sessions/ -p 8080:8080 flytrap --help
+
 Features
 -----------
 

@@ -1,18 +1,24 @@
-rich >=10.11.0,<13.0.0  # https://github.com/Textualize/rich
-colorama >=0.4.3,<0.5.0
-shellingham >=1.3.0,<2.0.0
+rich==12.6.0  # https://github.com/Textualize/rich
+colorama==0.4.5
+shellingham==1.5.0
 typer~=0.6  # https://github.com/tiangolo/typer
 
 # Web
-Flask~=2.2
-# Flask-Session
-# flask_cors
+# Flask~=2.2
+# Flask-Session  # TODO
 
-Jinja2~=3.1
-MarkupSafe==2.0.1
+# Jinja2~=3.1
+# MarkupSafe==2.0.1
 
 # Utility
-itsdangerous~=2.1
+# itsdangerous~=2.1
 
 # Tunnel
-pyngrok~=5.1
+pyngrok==5.1.0
+
+
+
+# ssdsa
+Flask==2.2.2
+MarkupSafe==2.1.1
+Jinja2==3.1.2

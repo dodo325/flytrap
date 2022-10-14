@@ -69,12 +69,14 @@ Docker:
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 Build (local)
+
 .. code:: bash
 
     docker build -t flytrap .
 
 
 Run:
+
 .. code:: bash
 
     docker run -it -v "$(pwd)"/.flytrap:/home/app/.flytrap/ -p 8080:8080 flytrap --help

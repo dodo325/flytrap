@@ -85,6 +85,9 @@ setup(
             "flytrap=flytrap.cli:app",
         ],
     },
+    project_urls={
+        "Documentation": "https://flytrap.readthedocs.io",
+    },
     install_requires=requirements,
     tests_require=test_requirements,
     extras_require=extras,

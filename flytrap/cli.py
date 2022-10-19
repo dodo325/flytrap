@@ -31,8 +31,8 @@ def run(
 ):
     """Start the trap tunnel"""
     data = configs.read_config_file()
-    ngrok_token = ngrok_token or data["ngrok_token"]
-    bitly_token = bitly_token or data["bitly_token"]
+    ngrok_token = ngrok_token or data.get("ngrok_token", None)
+    bitly_token = bitly_token or data.get("bitly_token", None)
 
     app = create_app(
         target_url=target_url,

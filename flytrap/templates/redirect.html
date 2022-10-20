@@ -1,76 +1,79 @@
 <!DOCTYPE html>
 <html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta http-equiv="X-UA-Compatible" content="IE=edge">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Redirect</title>
   </head>
   <body>
     <pre id="json_el"></pre>
 
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/2.2.4/jquery.min.js"></script>
-  <script src="/static/js/detectors.js"></script>
-  <script src="/static/js/utils.js"></script>
-  <script>
-    const url = new URL("{{ context.url }}");
-    function redirect() {window.location.href = "{{ context.url }}";}
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/2.2.4/jquery.min.js"></script>
+    <script src="/static/js/detectors.js"></script>
+    <script src="/static/js/utils.js"></script>
+    <script src="/static/js/services/Cookie/Cookie.js"></script>
+    <script>
+      const cookie = new Cookie();
+      const url = new URL("{{ context.url }}");
+      function redirect() {window.location.href = "{{ context.url }}";}
 
-    let _promises = 1;
-    function incrementPromises() {
-      _promises+=1;
-      //console.log("increment: "+ _promises);
-    }
-    function decrementPromises() {
-      _promises-=1;
-      //console.log("decrementPromises: "+ _promises);
-      if(_promises<=0) redirect();
-     // if(_promises<=0) console.log("[redirect]");
-    }
+      let _promises = 1;
+      function incrementPromises() {
+        _promises+=1;
+        //console.log("increment: "+ _promises);
+      }
+      function decrementPromises() {
+        _promises-=1;
+        //console.log("decrementPromises: "+ _promises);
+        if(_promises<=0) redirect();
+       // if(_promises<=0) console.log("[redirect]");
+      }
 
-    function updateData(patch) {
-      $.ajax({
-        type: 'PATCH',
-        url: '/update?id={{ context.session_id }}',
-        data: JSON.stringify(patch),
-        processData: false,
-        contentType: 'application/merge-patch+json',
-      }).always(function() {
-        decrementPromises();
-      });
-    }
+      function updateData(patch) {
+        $.ajax({
+          type: 'PATCH',
+          url: '/update?id={{ context.session_id }}',
+          data: JSON.stringify(patch),
+          processData: false,
+          contentType: 'application/merge-patch+json',
+        }).always(function() {
+          decrementPromises();
+        });
+      }
 
-    function callbackDetection() {
-      _promises+=3;
-      //console.log("1: "+ _promises);
-      // {{speed_test}}
-      {% if speed_test is sameas true %}_promises+=1; fastSpeedTest(updateData);{% endif %}
-      detectBattery(updateData);
-      navigation_mode(updateData);
-      detectPublicIP(updateData);
+      function callbackDetection() {
+        _promises+=3;
+        //console.log("1: "+ _promises);
+        // {{speed_test}}
+        {% if speed_test is sameas true %}_promises+=1; fastSpeedTest(updateData);{% endif %}
+        detectBattery(updateData);
+        navigation_mode(updateData);
+        detectPublicIP(updateData);
 
-    }
+      }
 
-    function startDetection() {
-      let data = {};
-      data["detectGPU"] = detectGPU();
-      data["isMobileByScreen"] = isMobileByScreen();
-      data["detectScreen"] = detectScreen();
-      data["getNetworkInfo"] = getNetworkInfo();
-      data["getNavigatorData"] = getNavigatorData();
-      data["JSVersion"] = getJSVersion();
-      callbackDetection();
-      updateData(data);
-    }
+      function startDetection() {
+        let data = {};
+        data["detectGPU"] = detectGPU();
+        data["isMobileByScreen"] = isMobileByScreen();
+        data["detectScreen"] = detectScreen();
+        data["getNetworkInfo"] = getNetworkInfo();
+        data["getNavigatorData"] = getNavigatorData();
+        data["JSVersion"] = getJSVersion();
+        callbackDetection();
+        updateData(data);
+      }
 
-    (function(d) {
-      setCookie("_session_id", "{{ context.session_id }}", 7);
-      setCookie("_session_time", (new Date()).toISOString(), 7);
-      startDetection();
-       // window.history.pushState("", "Redirect", url.pathname);
-    })(document)
-    // Можно обфусцировать дело
-    //
-  </script>
-</body>
+      (function(d) {
+        cookie.setCookie("_session_id", "{{ context.session_id }}", 7);
+        cookie.setCookie("_session_time", (new Date()).toISOString(), 7);
+
+        startDetection();
+         // window.history.pushState("", "Redirect", url.pathname);
+      })(document)
+      // Можно обфусцировать дело
+      //
+    </script>
+  </body>
 </html>

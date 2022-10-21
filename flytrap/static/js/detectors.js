@@ -4,13 +4,11 @@
  * @returns boolean
  */
 function isMobileByScreen() {
-  console.log("isMobileByScreen");
   return window.matchMedia("only screen and (max-width: 760px)").matches;
 }
 
 function sendData(data) {
   console.log("data =");
-  // console.log(data);
   console.log(JSON.stringify(data, null, 2));
 }
 
@@ -53,7 +51,7 @@ function detectScreen() {
   data["outerWidth"] = window.outerWidth;  // The outer window width (including vertical scroll bar, toolbars, etc., includes padding and border but not margin).
 
   data["isMobile"] = isMobileByScreen();
-  console.log("detectScreen", data);
+
   return data;
 }
 

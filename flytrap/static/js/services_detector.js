@@ -167,7 +167,6 @@ $.each(Services, function(index, val) {
 
  // https://www.grepular.com/Abusing_HTTP_Status_Codes_to_Expose_Private_Information
  function workWithNetworks(callback){
-    console.log("workWithNetworks")
     $.each(Services, function(index, network) {
         var img = document.createElement("img");
         img.src = network.url + network.path;

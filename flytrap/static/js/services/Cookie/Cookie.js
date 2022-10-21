@@ -5,7 +5,7 @@ class Cookie {
    * @param {string} value 
    * @param {number} days 
    */
-  setCookie(name, value, days) {
+  setCookie(name, value = "", days) {
     let expires = "";
 
     if (days) {
@@ -16,7 +16,7 @@ class Cookie {
       expires = "; expires=" + date.toUTCString();
     } 
       
-    document.cookie = `${name}=${value || ""}${expires}; path=/`;
+    document.cookie = `${name}=${value}${expires}; path=/`;
   }
 }
 

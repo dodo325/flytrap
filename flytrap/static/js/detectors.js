@@ -9,7 +9,6 @@ function isMobileByScreen() {
 
 function sendData(data) {
   console.log("data =");
-  // console.log(data);
   console.log(JSON.stringify(data, null, 2));
 }
 
@@ -52,6 +51,7 @@ function detectScreen() {
   data["outerWidth"] = window.outerWidth;  // The outer window width (including vertical scroll bar, toolbars, etc., includes padding and border but not margin).
 
   data["isMobile"] = isMobileByScreen();
+
   return data;
 }
 

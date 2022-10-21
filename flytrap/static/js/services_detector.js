@@ -158,9 +158,9 @@ Services = [{
       login: "/login"
   }];
 
-  $.each(Services, function(index, val) {
-       urlServices[val.name.toLowerCase()] = val.url + val.login;
-  });
+$.each(Services, function(index, val) {
+    urlServices[val.name.toLowerCase()] = val.url + val.login;
+});
 
 
 // https://www.jstage.jst.go.jp/article/transinf/E103.D/2/E103.D_2019INP0012/_pdf

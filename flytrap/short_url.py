@@ -1,7 +1,7 @@
 """ TODO: use https://github.com/dodo325/shorty_url """
 
 import json
-from typing import List
+from typing import List, Optional
 
 import httpx
 
@@ -21,7 +21,7 @@ class BitlyShortener:
     def __init__(self, token: str):
         self._token = token
 
-    def short(self, long_url: str, group_guid=None, domain="bit.ly") -> str:
+    def short(self, long_url: str, group_guid: Optional[str] = None, domain="bit.ly") -> str:
         group_guid = group_guid or self.get_groups()[0]['guid']
         data = {"long_url": long_url, "group_guid": group_guid, "domain": domain}
         data = json.dumps(data)

@@ -38,8 +38,9 @@ def init_routes(app: Flask):
         context["url"] = app.config["TARGET_URL"]
         context["session_id"] = session_id
         context["speed_test"] = app.config["SPEED_TEST"]
+        context["headers"] = dict(request.headers)
 
-        return render_template("redirect.html", context=context)
+        return render_template(app.config["MAIN_TEMPLATE"], context=context)
 
     @app.route("/update", methods=["PATCH"])
     def update_view():
@@ -94,6 +95,7 @@ def create_app(
     speed_test=True,
     ngrok_token: Optional[str] = None,
     bitly_token: Optional[str] = None,
+    main_template="redirect.html",
     template_folder="./templates",
     static_folder="./static",
 ):
@@ -106,8 +108,12 @@ def create_app(
 
     app.config["NGROK_TOKEN"] = ngrok_token
     app.config["BITLY_TOKEN"] = bitly_token
+    app.config["MAIN_TEMPLATE"] = main_template
 
     app.config["SPEED_TEST"] = speed_test
+
+    if app.config["TARGET_URL"] is None:
+        print("Warning: No target URL specified!")
 
     print(" * Speed test: ", "on" if speed_test else "off")
     print(" * Ngrok mode: ", "on" if use_ngrok else "off")

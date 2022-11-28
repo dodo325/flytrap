@@ -7,6 +7,8 @@ import httpx
 
 
 class BitlyShortener:
+    __api_url = "https://api-ssl.bitly.com/v4/"
+
     def _get_headers(self) -> dict:
         return {
             'Authorization': f'Bearer {self._token}',
@@ -14,7 +16,7 @@ class BitlyShortener:
         }
 
     def get_groups(self) -> List[dict]:
-        r = httpx.get("https://api-ssl.bitly.com/v4/groups", headers=self._get_headers())
+        r = httpx.get(self.__api_url + "groups", headers=self._get_headers())
         data = r.json()
         return data["groups"]
 
@@ -25,7 +27,7 @@ class BitlyShortener:
         group_guid = group_guid or self.get_groups()[0]['guid']
         data = {"long_url": long_url, "group_guid": group_guid, "domain": domain}
         data = json.dumps(data)
-        r = httpx.post('https://api-ssl.bitly.com/v4/shorten', headers=self._get_headers(), data=data)
+        r = httpx.post(self.__api_url + 'shorten', headers=self._get_headers(), data=data)
 
         if r.status_code != 201:
             raise RuntimeError(f"Could not shorten! response: {r.text}")
@@ -37,6 +39,6 @@ class BitlyShortener:
         url = url.replace('http://', '')
         url = url.replace('https://', '')
 
-        r = httpx.delete('https://api-ssl.bitly.com/v4/bitlinks/' + url, headers=self._get_headers())
+        r = httpx.delete(self.__api_url + 'bitlinks/' + url, headers=self._get_headers())
         if r.status_code != 200:
             raise RuntimeError(f"Could not delete! response: {r.text}")

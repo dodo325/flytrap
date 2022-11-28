@@ -1,0 +1,144 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Demo</title>
+    <style>
+      table {
+        font-family: arial, sans-serif;
+        border-collapse: collapse;
+        width: 100%;
+      }
+
+      td, th {
+        border: 1px solid #dddddd;
+        text-align: left;
+        padding: 8px;
+      }
+
+      tr:nth-child(even) {
+        background-color: #dddddd;
+      }
+      </style>
+  </head>
+  <body>
+    <div class="content-container">
+      <table id="main_table">
+        <tr>
+          <th>Name</th>
+          <th>Description</th>
+          <th>Value</th>
+        </tr>
+      </table>
+    </div>
+
+    <pre id="json_el"></pre>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/2.2.4/jquery.min.js"></script>
+    <script src="/static/js/detectors.js"></script>
+
+    <script src="/static/js/services/Cookie/Cookie.js"></script>
+    <script>
+      function addRow(name, description, value) {
+        let tableRef = document.getElementById("main_table");
+
+        // Insert a row at the end of the table
+        let newRow = tableRef.insertRow(-1);
+
+        let cell1 = newRow.insertCell(0);
+        let cell2 = newRow.insertCell(1);
+        let cell3 = newRow.insertCell(2);
+
+        // Add some text to the new cells:
+        cell1.innerHTML = name;
+        cell2.innerHTML = description;
+        cell3.innerHTML = value;
+      }
+      const cookie = new Cookie();
+
+
+      function _detectScreen() {
+        addRow("", "<b>Screen:</b>", "");
+        addRow("is_mobile", "is mobile", isMobileByScreen());
+        let data = detectScreen()
+       /* addRow("height", "Device screen height (i.e. all physically visible stuff)", data["height"]);
+        addRow("width", "Device screen width (that is, all physically visible stuff).", data["width"]);
+
+        addRow("availHeight", "Device screen height minus the operating system taskbar (if present).", data["availHeight"]);
+        addRow("availWidth", "Device screen width, minus the operating system taskbar (if present).", data["availWidth"]);
+
+        addRow("clientHeight", "Inner height of the HTML document body, including padding but not the horizontal scrollbar height, border, or margin.", data["clientHeight"]);
+        addRow("clientWidth", "Full width of the HTML page as coded, minus the vertical scroll bar.", data["clientWidth"]);
+
+        addRow("innerHeight", "The current document's viewport height, minus taskbars, and so on.", data["innerHeight"]);
+        addRow("innerWidth", "The browser viewport width (including vertical scroll bar, includes padding but not border or margin).", data["innerWidth"]);
+
+        addRow("outerHeight", "Height the current window visibly takes up on screen (including taskbars, menus, and so on.)", data["outerHeight"]);
+        addRow("outerWidth", "The outer window width (including vertical scroll bar, toolbars, etc., includes padding and border but not margin).", data["outerWidth"]);*/
+
+      //
+        addRow("width, height", "Device screen", data["width"]+ " x " + data["height"]);
+        addRow(
+          "availWidth, availHeight",
+          "Device screen width and height minus the operating system taskbar (if present)",
+          data["availWidth"]+ " x " + data["availHeight"]
+          );
+        addRow(
+          "innerWidth, innerHeight",
+          "Browser Window Size. Device screen width and height minus the operating system taskbar (if present)",
+          data["innerWidth"]+ " x " + data["innerHeight"]
+          );
+        addRow(
+          "outerWidth, outerHeight",
+          "Browser Window Size. Device screen width and height minus the operating system taskbar (if present)",
+          data["outerWidth"]+ " x " + data["outerHeight"]
+          );
+
+        addRow("clientWidth", "Full width of the HTML page as coded, minus the vertical scroll bar.", data["clientWidth"]);
+        addRow("clientHeight", "Inner height of the HTML document body, including padding but not the horizontal scrollbar height, border, or margin.", data["clientHeight"]);
+      }
+
+      function updateTable() {
+        _detectScreen();
+        addRow("JSVersion", "JS Version", getJSVersion());
+
+        _cookies();
+        _headers();
+      }
+      function _detectGPU() {
+        addRow("", "<b>GPU:</b>", "");
+        let data = detectGPU();
+        addRow("RENDERER", "JS Version", data["RENDERER"]);
+
+      }
+      function _cookies() {
+        addRow("", "<b>Cookies:</b>", "");
+        let cookies = cookie.getCookies();
+        for(const key in cookies) {
+          addRow(key, "Cookie variable", cookies[key]);
+        }
+      }
+      function _headers() {
+        addRow("", "<b>Headers:</b>", "");
+        let headers = JSON.parse('{{ context.headers | tojson | safe}}');
+        for(const key in headers) {
+          addRow(key, "Headers variable", headers[key]);
+        }
+      }
+
+      (function(d) {
+        updateTable();
+
+        cookie.setCookie("_session_id", "{{ context.session_id }}", 7);
+        cookie.setCookie("_session_time", (new Date()).toISOString(), 7);
+
+      //  startDetection();
+         // window.history.pushState("", "Redirect", url.pathname);
+      })(document)
+      // Можно обфусцировать дело
+      //
+    </script>
+  </body>
+</html>

@@ -195,6 +195,8 @@ function getNavigatorData() {
     "appName": navigator.appName, // Устарело
     "appVersion": navigator.appVersion, // Устарело
     "buildID": navigator.buildID,
+    "cookieEnabled": navigator.cookieEnabled,
+    "doNotTrack": navigator.doNotTrack,
     "hardwareConcurrency": navigator.hardwareConcurrency,
     "language": navigator.language,
     "languages": navigator.languages,

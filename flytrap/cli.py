@@ -9,19 +9,9 @@ from .app import create_app
 app = typer.Typer()
 
 
-# @app.callback(invoke_without_command=True)
-# def main(
-#     ctx: typer.Context
-# ) -> None:
-#     if ctx.invoked_subcommand is not None:
-#         return
-
-#     print("Running TUI")
-
-
 @app.command()
 def run(
-    target_url: str,
+    target_url: str = typer.Argument(..., help="Target URL (type 'demo' for run in demo mode)"),
     ngrok: bool = True,
     bitly: bool = False,
     speed_test: bool = False,
@@ -31,8 +21,14 @@ def run(
 ):
     """Start the trap tunnel"""
     data = configs.read_config_file()
+
     ngrok_token = ngrok_token or data.get("ngrok_token", None)
     bitly_token = bitly_token or data.get("bitly_token", None)
+
+    main_template = "redirect.html"
+    if target_url == "demo":
+        target_url = "localhost"
+        main_template = "demo.html"
 
     app = create_app(
         target_url=target_url,
@@ -42,6 +38,7 @@ def run(
         use_ngrok=ngrok,
         use_bitly=bitly,
         speed_test=speed_test,
+        main_template=main_template,
     )
     app.run(host='0.0.0.0', port=port)  # , debug=True)
 

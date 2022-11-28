@@ -110,3 +110,9 @@ Documentation
 ----------------------
 
 https://flytrap.readthedocs.io/en/latest/
+
+
+References
+----------------------
+
+Project inspired `jofpin/trape <https://github.com/jofpin/trape>`_.

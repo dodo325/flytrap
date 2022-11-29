@@ -81,6 +81,26 @@ Run:
 
     docker run -it -v "$(pwd)"/.flytrap:/home/app/.flytrap/ -p 8080:8080 flytrap --help
 
+Testing:
+-----------
+
+Run test:
+
+.. code:: bash
+
+    make test
+
+Or pytest:
+.. code:: bash
+
+    pytest --driver Firefox --headless
+
+Arguments:
+
+* driver - selenium driver type (`read more <https://pytest-selenium.readthedocs.io/en/latest/user_guide.html>`_ )
+* headless - selenium headless mode
+
+
 Features
 -----------
 

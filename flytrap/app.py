@@ -67,6 +67,7 @@ def setup_bitly(app):
     public_url = s.short(app.config["BASE_URL"])
     print(f" * bitly.com rederect \"{public_url}\" -> \"{app.config['BASE_URL']}\"")
     app.config["BASE_URL"] = public_url
+    app.config["BITLY_URL"] = public_url
 
 
 def setup_ngrok(app):
@@ -82,9 +83,9 @@ def setup_ngrok(app):
     print(f" * ngrok tunnel \"{public_url}\" -> \"{app.config['BASE_URL']}\"")
 
     # Update any base URLs or webhooks to use the public ngrok URL
-    app.config["BASE_URL"] = public_url
 
-    setup_bitly(app)
+    app.config["BASE_URL"] = public_url
+    app.config["NGROK_URL"] = public_url
 
 
 def create_app(
@@ -119,6 +120,7 @@ def create_app(
     print(" * Ngrok mode: ", "on" if use_ngrok else "off")
 
     setup_ngrok(app)
+    setup_bitly(app)
 
     init_routes(app)
     return app

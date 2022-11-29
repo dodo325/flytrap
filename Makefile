@@ -58,7 +58,7 @@ lint/black: ## check style with black
 	black --check flytrap tests
 
 test: ## run tests quickly with the default Python
-	pytest
+	pytest --driver Firefox
 
 test-all: ## run tests on every Python version with tox
 	tox

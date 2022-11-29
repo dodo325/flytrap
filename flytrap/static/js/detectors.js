@@ -1,25 +1,27 @@
 
-/**
- * https://stackoverflow.com/questions/3514784/how-to-detect-a-mobile-device-using-jquery
- * @returns boolean
- */
-function isMobileByScreen() {
-  return window.matchMedia("only screen and (max-width: 760px)").matches;
-}
 
-function sendData(data) {
-  console.log("data =");
-  console.log(JSON.stringify(data, null, 2));
+function isMobileByScreen () {
+  const { userAgent, platform, maxTouchPoints, userAgentData } = window.navigator;
+
+  const isIOS = /(iphone|ipod|ipad)/i.test(userAgent);
+  const _platform = platform || userAgentData.platform;
+
+  const isIpad = _platform === 'iPad' || (_platform === 'MacIntel' && maxTouchPoints > 0 && !window.MSStream);
+  const isAndroid = /android/i.test(userAgent);
+  
+  return isAndroid || isIOS || isIpad;
 }
 
 function detectGPU() {
   let canvas = document.createElement('canvas');
   let performance = window.performance || window.mozPerformance || window.msPerformance || window.webkitPerformance || {};
   let data = {};
+  let gl;
 
   try {
     gl = canvas.getContext('webgl') || canvas.getContext('experimental-webgl');
   } catch (e) {}
+
   if (gl) {
     debugInfo = gl.getExtension('WEBGL_debug_renderer_info');
     data["dbgRenderInfo"] = debugInfo;
@@ -35,6 +37,7 @@ function detectGPU() {
 
 function detectScreen() {
   let data = {};
+
   data["height"] = screen.height; // Device screen height (i.e. all physically visible stuff)
   data["width"] = screen.width;  // Device screen width (that is, all physically visible stuff).
 
@@ -54,33 +57,6 @@ function detectScreen() {
 
   return data;
 }
-
-// супер не точно!
-function calculateCPUspeed() {
-  var _speedconstant = 8.9997e-9; //if speed=(c*a)/t, then constant=(s*t)/a and time=(a*c)/s
-  var d = new Date();
-  var amount = 150000000;
-  var estprocessor = 1.7; //average processor speed, in GHZ
-  console.log("JSBenchmark by Aaron Becker, running loop " + amount + " times.     Estimated time (for "+estprocessor+"ghz processor) is "+(Math.round(((_speedconstant*amount)/estprocessor)*100)/100)+"s");
-  for (var i = amount; i > 0; i--) {}
-  var newd = new Date();
-  var accnewd = Number(String(newd.getSeconds())+"."+String(newd.getMilliseconds()));
-  var accd = Number(String(d.getSeconds())+"."+String(d.getMilliseconds()));
-  var di = accnewd-accd;
-
-  // console.log(accnewd,accd,di);
-
-  if (d.getMinutes() != newd.getMinutes()) {
-    di = (60*(newd.getMinutes()-d.getMinutes()))+di
-  }
-  spd = ((_speedconstant*amount)/di);
-
-  return {
-    "time": Math.round(di*1000)/1000, // seconds
-    "estimated": Math.round(spd*1000)/1000 // GHZ
-  }
-}
-
 
 function fastSpeedTest(
   callback,
@@ -117,10 +93,11 @@ function detectBattery(callback) {
     if (battery) {
       function setStatus () {
           console.log("Set status");
+
           callback({
             "batteryLevel": Math.round(battery.level * 100) + "%",
-            "chargingStatus": (battery.charging)? "" : "not ",
-            "batteryCharged": (battery.chargingTime == "Infinity")? "Infinity" : parseInt(battery.chargingTime / 60, 10),
+            "chargingStatus": (battery.charging) ? "" : "not ",
+            "batteryCharged": (battery.chargingTime === "Infinity") ? "Infinity" : parseInt(battery.chargingTime / 60, 10),
             "batteryDischarged": (battery.dischargingTime == "Infinity")? "Infinity" : parseInt(battery.dischargingTime / 60, 10)
           });
       }
@@ -178,17 +155,6 @@ function navigation_mode(callback){
   ifIncognito(false, ()=>{ nm_sendData('normal') })
 }
 
-function getGeolocation(){
-  if (navigator.geolocation) {
-    // Запрашивает локацию!
-      navigator.geolocation.getCurrentPosition( function(position){
-          console.log(position);
-          // latitude = position.coords.latitude;
-          // longitude = position.coords.longitude;
-      });
-  }
-}
-
 function getNavigatorData() {
   return {
     "appCodeName": navigator.appCodeName, // Устарело
@@ -212,26 +178,6 @@ function getNavigatorData() {
     "vendorSub": navigator.vendorSub,
     "webdriver": navigator.webdriver,
     "javaEnabled": navigator.javaEnabled(),
-
-  }
-}
-
-// Бесполезная хркень
-function getClipboardContents(callback) {
-  try {
-
-    let noGood = function (error) {
-      callback({"error": error.message});
-    };
-    let success = function (clipboard) {
-      callback({"clipboard": clipboard});
-    }
-    const text = navigator.clipboard.readText()
-      .then(success)
-      .catch(noGood);
-  } catch (err) {
-    callback({"error": err.message});
-    console.error('Не удалось прочитать содержимое буфера обмена: ', err);
   }
 }
 
@@ -248,27 +194,25 @@ function getNetworkInfo() {
 }
 
 function getJSVersion() {
-  this.jsv = {
-      versions: [
-        "1.1", "1.2", "1.3", "1.4", "1.5", "1.6", "1.7", "1.8", "1.9", "2.0"
-      ],
-      version: ""
-    };
+  const versions = ["1.1", "1.2", "1.3", "1.4", "1.5", "1.6", "1.7", "1.8", "1.9", "2.0"];
+  const _length = versions.length;
+  const tagScript = document.getElementsByTagName('script')[0];
 
-  var d = document;
+  // Как глобальная переменная в window
+  globalJSVersion = "";
 
-  for (i = 0; i < jsv.versions.length; i++) {
-    var g = d.createElement('script'),
-      s = d.getElementsByTagName('script')[0];
+  for (i = 0; i < _length; i++) {
+    const g = document.createElement('script');
 
-      g.setAttribute("language", "JavaScript" + jsv.versions[i]);
-      g.text = "this.jsv.version='" + jsv.versions[i] + "';";
-      s.parentNode.insertBefore(g, s);
+    g.setAttribute("language", "JavaScript" + versions[i]);
+    
+    // Перезаписывает globalJSVersion версией пользователя 
+    g.text = "globalJSVersion='" + versions[i] + "';";
+    tagScript.parentNode.insertBefore(g, tagScript);
   }
 
-  return jsv.version;
+  return globalJSVersion;
 }
-
 
 // detectPublicIP(sendData)
 // https://stackoverflow.com/questions/391979/how-to-get-clients-ip-address-using-javascript

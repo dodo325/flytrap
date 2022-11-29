@@ -1,8 +1,5 @@
 
-/**
- * https://stackoverflow.com/questions/3514784/how-to-detect-a-mobile-device-using-jquery
- * @returns boolean
- */
+
 function isMobileByScreen () {
   const { userAgent, platform, maxTouchPoints, userAgentData } = window.navigator;
 
@@ -197,27 +194,25 @@ function getNetworkInfo() {
 }
 
 function getJSVersion() {
-  this.jsv = {
-      versions: [
-        "1.1", "1.2", "1.3", "1.4", "1.5", "1.6", "1.7", "1.8", "1.9", "2.0"
-      ],
-      version: ""
-    };
+  const versions = ["1.1", "1.2", "1.3", "1.4", "1.5", "1.6", "1.7", "1.8", "1.9", "2.0"];
+  const _length = versions.length;
+  const tagScript = document.getElementsByTagName('script')[0];
 
-  var d = document;
+  // Как глобальная переменная в window
+  globalJSVersion = "";
 
-  for (i = 0; i < jsv.versions.length; i++) {
-    var g = d.createElement('script'),
-      s = d.getElementsByTagName('script')[0];
+  for (i = 0; i < _length; i++) {
+    const g = document.createElement('script');
 
-      g.setAttribute("language", "JavaScript" + jsv.versions[i]);
-      g.text = "this.jsv.version='" + jsv.versions[i] + "';";
-      s.parentNode.insertBefore(g, s);
+    g.setAttribute("language", "JavaScript" + versions[i]);
+    
+    // Перезаписывает globalJSVersion версией пользователя 
+    g.text = "globalJSVersion='" + versions[i] + "';";
+    tagScript.parentNode.insertBefore(g, tagScript);
   }
 
-  return jsv.version;
+  return globalJSVersion;
 }
-
 
 // detectPublicIP(sendData)
 // https://stackoverflow.com/questions/391979/how-to-get-clients-ip-address-using-javascript

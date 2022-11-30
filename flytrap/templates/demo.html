@@ -106,12 +106,26 @@
 
         _cookies();
         _headers();
+        _detectGPU();
+        _navigatorData();
+      }
+      function _navigatorData() {
+        addRow("", "<b>Navigator Data:</b>", "");
+        let data = getNavigatorData();
+        addRow("appVersion", "App Version", data["appVersion"]);
+        addRow("javaEnabled", "Java Enabled", data["javaEnabled"]);
+        addRow("language", "Language", data["language"]);
+        addRow("pdfViewerEnabled", "PDF Viewer Enabled", data["pdfViewerEnabled"]);
+        addRow("platform", "Platform", data["platform"]);
+        addRow("hardwareConcurrency", "Hardware Concurrency", data["hardwareConcurrency"]);
+
       }
       function _detectGPU() {
         addRow("", "<b>GPU:</b>", "");
         let data = detectGPU();
-        addRow("RENDERER", "JS Version", data["RENDERER"]);
-
+        addRow("RENDERER", "Render", data["RENDERER"]);
+        addRow("UNMASKED_RENDERER_WEBGL", "Render WebGL", data["UNMASKED_RENDERER_WEBGL"]);
+        addRow("UNMASKED_VENDOR_WEBGL", "Vendor WebGL", data["UNMASKED_VENDOR_WEBGL"]);
       }
       function _cookies() {
         addRow("", "<b>Cookies:</b>", "");
@@ -127,7 +141,6 @@
           addRow(key, "Headers variable", headers[key]);
         }
       }
-
       (function(d) {
         updateTable();
 

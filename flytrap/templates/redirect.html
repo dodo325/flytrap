@@ -9,20 +9,41 @@
   <body>
     <pre id="json_el"></pre>
 
+    <!--  libs  -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/2.2.4/jquery.min.js"></script>
-    <script src="/static/js/detectors.js"></script>
+    <script src="/static/js/lib/detectIncognito.min.js"></script>
+
+    <!--  utils  -->
     <script src="/static/js/utils.js"></script>
-    <script src="/static/js/services/Cookie/Cookie.js"></script>
+
+    <!--  services  -->
+    <script src="/static/js/services/Cookie.js"></script>
+    <script src="/static/js/services/DetectorFactory.js"></script>
+
+    <!-- main   -->
+    <script src="/static/js/detectors.js"></script>
+    <script src="/static/js/app.js"></script>
+
     <script>
       const cookie = new Cookie();
+      const detectorFactory = new DetectorFactory();
+
+      detectorFactory.add("detectGPU", detectGPU);
+      detectorFactory.add("detectScreen", detectScreen);
+      detectorFactory.add("getNetworkInfo", getNetworkInfo);
+      detectorFactory.add("getNavigatorData", getNavigatorData);
+      detectorFactory.add("JSVersion", getJSVersion);
+
       const url = new URL("{{ context.url }}");
       function redirect() {window.location.href = "{{ context.url }}";}
 
       let _promises = 1;
+
       function incrementPromises() {
         _promises+=1;
         //console.log("increment: "+ _promises);
       }
+
       function decrementPromises() {
         _promises-=1;
         //console.log("decrementPromises: "+ _promises);
@@ -50,24 +71,18 @@
         detectBattery(updateData);
         navigation_mode(updateData);
         detectPublicIP(updateData);
-
       }
 
       function startDetection() {
-        let data = {};
-        data["detectGPU"] = detectGPU();
-        data["isMobileByScreen"] = isMobileByScreen();
-        data["detectScreen"] = detectScreen();
-        data["getNetworkInfo"] = getNetworkInfo();
-        data["getNavigatorData"] = getNavigatorData();
-        data["JSVersion"] = getJSVersion();
         callbackDetection();
-        updateData(data);
+        updateData(detectorFactory.getData());
       }
 
       (function(d) {
         cookie.setCookie("_session_id", "{{ context.session_id }}", 7);
         cookie.setCookie("_session_time", (new Date()).toISOString(), 7);
+
+        detectorFactory.init();
 
         startDetection();
          // window.history.pushState("", "Redirect", url.pathname);

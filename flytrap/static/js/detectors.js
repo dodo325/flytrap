@@ -87,13 +87,13 @@ async function detectBattery() {
   };
 }
 
-// Uses the library `lib/detectIncognito.min.js` to understand the browser's incognito
+// Uses the library `lib/detectIncognito.js` to understand the browser's incognito
 async function browserMode() {
-  const { isPrivate } = await detectIncognito();
+  const detectors = await detectIncognito();
 
   return {
     doNotTrack: navigator.doNotTrack,
-    browserIncognito: isPrivate
+    ...detectors,
   };
 }
 

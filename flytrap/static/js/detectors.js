@@ -1,29 +1,31 @@
-
-
-function isMobileByScreen () {
-  const { userAgent, platform, maxTouchPoints, userAgentData } = window.navigator;
+function isMobileByScreen() {
+  const {userAgent, platform, maxTouchPoints, userAgentData} = window.navigator;
 
   const isIOS = /(iphone|ipod|ipad)/i.test(userAgent);
   const _platform = platform || userAgentData.platform;
 
   const isIpad = _platform === 'iPad' || (_platform === 'MacIntel' && maxTouchPoints > 0 && !window.MSStream);
   const isAndroid = /android/i.test(userAgent);
-  
+
   return isAndroid || isIOS || isIpad;
+}
+
+function getPerformance() {
+  return window.performance
+    || window.mozPerformance
+    || window.msPerformance
+    || window.webkitPerformance
+    || {};
 }
 
 function detectGPU() {
   let canvas = document.createElement('canvas');
-  let performance = window.performance || window.mozPerformance || window.msPerformance || window.webkitPerformance || {};
+  let performance = getPerformance();
   let data = {};
-  let gl;
-
-  try {
-    gl = canvas.getContext('webgl') || canvas.getContext('experimental-webgl');
-  } catch (e) {}
+  let gl = canvas.getContext('webgl') || canvas.getContext('experimental-webgl');
 
   if (gl) {
-    debugInfo = gl.getExtension('WEBGL_debug_renderer_info');
+    const debugInfo = gl.getExtension('WEBGL_debug_renderer_info');
     data["dbgRenderInfo"] = debugInfo;
     data["UNMASKED_VENDOR_WEBGL"] = gl.getParameter(debugInfo.UNMASKED_VENDOR_WEBGL);
     data["UNMASKED_RENDERER_WEBGL"] = gl.getParameter(debugInfo.UNMASKED_RENDERER_WEBGL);
@@ -58,101 +60,41 @@ function detectScreen() {
   return data;
 }
 
-function fastSpeedTest(
-  callback,
-  imageAddr = "https://upload.wikimedia.org/wikipedia/commons/0/01/Sof%C3%ADa_Vergara_3_May_2014_%28cropped%29.jpg",
-  downloadSize = 2104238
-) {
-  var startTime, endTime;
-  var download = new Image();
-  download.onload = function () {
-      endTime = (new Date()).getTime();
-      showResults();
-  }
+async function detectBattery() {
+  const errorText = "Battery API not supported on your device/computer";
+  const isBatterySupported = "getBattery" in navigator;
 
-  download.onerror = function (err, msg) {
-    callback({"error": msg});
-  }
+  if (!isBatterySupported) return errorText;
 
-  startTime = (new Date()).getTime();
-  var cacheBuster = "?nnn=" + startTime;
-  download.src = imageAddr + cacheBuster;
+  const battery = await navigator.getBattery();
 
-  function showResults() {
-    var duration = (endTime - startTime) / 1000;
-    var bitsLoaded = downloadSize * 8;
-    var speedBps = (bitsLoaded / duration).toFixed(2);
-    var speedKbps = (speedBps / 1024).toFixed(2);
-    var speedMbps = (speedKbps / 1024).toFixed(2);
-    callback({"speedMbps": speedMbps});
-  }
-}
+  if (!battery) return errorText;
 
-function detectBattery(callback) {
-  let success = function (battery) {
-    if (battery) {
-      function setStatus () {
-          console.log("Set status");
+  const batteryLevel = Math.round(battery.level * 100) + "%";
+  const chargingStatus = battery.charging ? "yes" : "not ";
+  const batteryCharged = inInfinity(battery.chargingTime)
+      ? "Infinity"
+      : parseInt(battery.chargingTime / 60, 10);
+  const batteryDischarged = inInfinity(battery.dischargingTime)
+      ? "Infinity"
+      : parseInt(battery.dischargingTime / 60, 10);
 
-          callback({
-            "batteryLevel": Math.round(battery.level * 100) + "%",
-            "chargingStatus": (battery.charging) ? "" : "not ",
-            "batteryCharged": (battery.chargingTime === "Infinity") ? "Infinity" : parseInt(battery.chargingTime / 60, 10),
-            "batteryDischarged": (battery.dischargingTime == "Infinity")? "Infinity" : parseInt(battery.dischargingTime / 60, 10)
-          });
-      }
-      // Set initial status
-      setStatus();
-
-      // Set events
-      battery.addEventListener("levelchange", setStatus, false);
-      battery.addEventListener("chargingchange", setStatus, false);
-      battery.addEventListener("chargingtimechange", setStatus, false);
-      battery.addEventListener("dischargingtimechange", setStatus, false);
-    } else {
-      callback({"error": "Battery API not supported on your device/computer"});
-    }
-  }
-  let noGood = function (error) {
-    callback({"error": error.message});
+  return {
+    batteryLevel,
+    chargingStatus,
+    batteryCharged,
+    batteryDischarged
   };
-  try {
-    navigator.getBattery() //returns a promise
-      .then(success)
-      .catch(noGood);
-
-  } catch (error) {
-    callback({"error": error.message});
-    console.warn(error.message);
-  }
 }
 
+// Uses the library `lib/detectIncognito.js` to understand the browser's incognito
+async function browserMode() {
+  const detectors = await detectIncognito();
 
-// хз что это но оно работает
-function navigation_mode(callback){
-  var nm_sendData = function(data){
-    callback({'d' : data, 'dn' : navigator.doNotTrack});
-  }
-
-  function ifIncognito(incog,func){ var fs = window.RequestFileSystem || window.webkitRequestFileSystem; if (!fs) {
-      var db = indexedDB.open("test");
-      db.onerror = function(){
-          nm_sendData('incognito')
-          var storage = window.sessionStorage;
-          try {
-              storage.setItem("p123", "test");
-              storage.remododo325em("p123");
-          } catch (e) {
-              if (e.code === DOMException.QUOTA_EXCEEDED_ERR && storage.length === 0) {
-                  nm_sendData('incognito')
-              }
-          }
-      };
-      db.onsuccess =function(){nm_sendData('normal')};
-  } else { if(incog) fs(window.TEMPORARY, 100, ()=>{}, func); else fs(window.TEMPORARY, 100, func, ()=>{}); } }
-
-  ifIncognito(true, ()=>{ nm_sendData('incognito') });
-  ifIncognito(false, ()=>{ nm_sendData('normal') })
+  return {
+    doNotTrack: navigator.doNotTrack,
+    ...detectors,
+  };
 }
 
 function getNavigatorData() {
@@ -182,14 +124,13 @@ function getNavigatorData() {
 }
 
 function getNetworkInfo() {
-  if (!navigator.connection) { return}
+  if (!navigator.connection) return false;
+
   return {
-    "type": navigator.connection.type,
-    "downlink": navigator.connection.downlink, // ' Mb/s'
+    "type": navigator.connection.type, "downlink": navigator.connection.downlink, // ' Mb/s'
     "rtt": navigator.connection.rtt, // ms
     "downlinkMax": navigator.connection.downlinkMax, // Mb/s
-    "effectiveType": navigator.connection.effectiveType,
-    "saveData": navigator.connection.saveData,
+    "effectiveType": navigator.connection.effectiveType, "saveData": navigator.connection.saveData,
   }
 }
 
@@ -205,8 +146,8 @@ function getJSVersion() {
     const g = document.createElement('script');
 
     g.setAttribute("language", "JavaScript" + versions[i]);
-    
-    // Перезаписывает globalJSVersion версией пользователя 
+
+    // Перезаписывает globalJSVersion версией пользователя
     g.text = "globalJSVersion='" + versions[i] + "';";
     tagScript.parentNode.insertBefore(g, tagScript);
   }
@@ -214,49 +155,16 @@ function getJSVersion() {
   return globalJSVersion;
 }
 
-// detectPublicIP(sendData)
-// https://stackoverflow.com/questions/391979/how-to-get-clients-ip-address-using-javascript
+async function detectPublicIP() {
+  let data;
+  const response = await fetch("https://api.ipregistry.co/?key=tryout");
 
-function getJSON(url, callback, error_callback=undefined) {
-  $.getJSON(url, callback)
-  .fail(function() {
-    if(error_callback === undefined) {
-      callback({});
-    } else {
-      error_callback({});
-    }
-  });
-}
-function getJSONvanila(url, callback, error_callback=undefined) {
-  fetch(url)
-    // Extract JSON body content from HTTP response
-    .then(response => response.json())
-    // Do something with the JSON data
-    .then(callback);
-}
+  if (response.ok) {
+    data = await response.json();
+  } else {
+    const response = await fetch("https://ipapi.co/json/");
+    data = await response.json();
+  }
 
-function detectPublicIP(callback) { // callback
-  // Может узнать использует ли человек tor или vpn
-  getJSON(
-    'https://api.ipregistry.co/?key=tryout',
-    callback,
-    function(err) {
-      getJSON(
-        'https://ipapi.co/json/',
-        callback,
-      )
-    }
-  )
-  // $.getJSON('https://api.ipregistry.co/?key=tryout', callback)
-  // .fail(function() {
-  //   callback({});
-  // });
-}
-
-function detectPublicIPvanila(callback) { // callback
-  fetch('https://api.ipregistry.co/?key=tryout')
-    // Extract JSON body content from HTTP response
-    .then(response => response.json())
-    // Do something with the JSON data
-    .then(callback);
+  return data;
 }

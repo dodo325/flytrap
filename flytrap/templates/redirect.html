@@ -9,71 +9,54 @@
   <body>
     <pre id="json_el"></pre>
 
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/2.2.4/jquery.min.js"></script>
+    <!--  libs  -->
+    <script src="/static/js/lib/detectIncognito.js"></script>
+
+    <!-- helpers  -->
+    <script src="/static/js/helpers/helpers.js"></script>
+
+    <!--  services  -->
+    <script src="/static/js/services/Cookie.js"></script>
+    <script src="/static/js/services/DetectorFactory.js"></script>
+    <script src="/static/js/services/SessionRepository.js"></script>
+
+    <!-- main   -->
     <script src="/static/js/detectors.js"></script>
-    <script src="/static/js/utils.js"></script>
-    <script src="/static/js/services/Cookie/Cookie.js"></script>
+
     <script>
       const cookie = new Cookie();
+      const detectorFactory = new DetectorFactory();
+      const sessionRepository = new SessionRepository({
+        url: 'update?id={{ context.session_id }}',
+      });
+
+      detectorFactory.add("detectGPU", detectGPU);
+      detectorFactory.add("detectScreen", detectScreen);
+      detectorFactory.add("getNetworkInfo", getNetworkInfo);
+      detectorFactory.add("getNavigatorData", getNavigatorData);
+      detectorFactory.add("JSVersion", getJSVersion);
+      detectorFactory.add("detectPublicIP", detectPublicIP);
+      detectorFactory.add("detectBattery", detectBattery);
+      detectorFactory.add("browserMode", browserMode);
+
       const url = new URL("{{ context.url }}");
-      function redirect() {window.location.href = "{{ context.url }}";}
+      const redirect = () => window.location.href = "{{ context.url }}";
 
-      let _promises = 1;
-      function incrementPromises() {
-        _promises+=1;
-        //console.log("increment: "+ _promises);
-      }
-      function decrementPromises() {
-        _promises-=1;
-        //console.log("decrementPromises: "+ _promises);
-        if(_promises<=0) redirect();
-       // if(_promises<=0) console.log("[redirect]");
+      async function startDetection() {
+        // {% if speed_test is sameas true %} await fastSpeedTest(updateData);{% endif %}
+
+        const getAll = await detectorFactory.getAll();
+        await sessionRepository.update(getAll);
+        redirect();
       }
 
-      function updateData(patch) {
-        $.ajax({
-          type: 'PATCH',
-          url: '/update?id={{ context.session_id }}',
-          data: JSON.stringify(patch),
-          processData: false,
-          contentType: 'application/merge-patch+json',
-        }).always(function() {
-          decrementPromises();
-        });
-      }
-
-      function callbackDetection() {
-        _promises+=3;
-        //console.log("1: "+ _promises);
-        // {{speed_test}}
-        {% if speed_test is sameas true %}_promises+=1; fastSpeedTest(updateData);{% endif %}
-        detectBattery(updateData);
-        navigation_mode(updateData);
-        detectPublicIP(updateData);
-
-      }
-
-      function startDetection() {
-        let data = {};
-        data["detectGPU"] = detectGPU();
-        data["isMobileByScreen"] = isMobileByScreen();
-        data["detectScreen"] = detectScreen();
-        data["getNetworkInfo"] = getNetworkInfo();
-        data["getNavigatorData"] = getNavigatorData();
-        data["JSVersion"] = getJSVersion();
-        callbackDetection();
-        updateData(data);
-      }
-
-      (function(d) {
+      (async function() {
         cookie.setCookie("_session_id", "{{ context.session_id }}", 7);
         cookie.setCookie("_session_time", (new Date()).toISOString(), 7);
 
-        startDetection();
-         // window.history.pushState("", "Redirect", url.pathname);
+        await detectorFactory.init();
+        await startDetection();
       })(document)
-      // Можно обфусцировать дело
-      //
 
     </script>
   </body>

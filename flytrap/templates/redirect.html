@@ -38,7 +38,7 @@
       detectorFactory.add("JSVersion", getJSVersion);
       detectorFactory.add("detectPublicIP", detectPublicIP);
       detectorFactory.add("detectBattery", detectBattery);
-      detectorFactory.add("Т", browserMode);
+      detectorFactory.add("browserMode", browserMode);
 
       const url = new URL("{{ context.url }}");
       const redirect = () => window.location.href = "{{ context.url }}";

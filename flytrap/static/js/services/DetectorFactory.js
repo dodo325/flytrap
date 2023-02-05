@@ -29,8 +29,12 @@ class DetectorFactory {
     });
   }
 
-  getData() {
+  getAll() {
     return this.data;
+  }
+
+  get(name) {
+    return this.data[name];
   }
 
   /**

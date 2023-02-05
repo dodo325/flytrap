@@ -1,4 +1,3 @@
-
 class DetectorFactory {
   #detectors;
 
@@ -23,10 +22,10 @@ class DetectorFactory {
   /**
    * Initialization of detectors added to the stack
    */
-  init() {
-    Object.keys(this.#detectors).forEach((name) => {
-      this.data[name] = this.#detectors[name]();
-    });
+  async init() {
+    for (const key of Object.keys(this.#detectors)) {
+      this.data[key] = await this.#detectors[key]();
+    }
   }
 
   getAll() {

@@ -1,43 +1,18 @@
 <!DOCTYPE html>
 <html lang="en">
   <head>
+    <title>Demo</title>
     <meta charset="UTF-8" />
     <meta http-equiv="X-UA-Compatible" content="IE=edge" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Demo</title>
-    <style>
-      table {
-        font-family: arial, sans-serif;
-        border-collapse: collapse;
-        width: 100%;
-      }
 
-      td, th {
-        border: 1px solid #dddddd;
-        text-align: left;
-        padding: 8px;
-      }
-
-      tr:nth-child(even) {
-        background-color: #dddddd;
-      }
-      </style>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.7.0/styles/default.min.css">
   </head>
   <body>
-    <div class="content-container">
-      <table id="main_table">
-        <tr>
-          <th>Name</th>
-          <th>Description</th>
-          <th>Value</th>
-        </tr>
-      </table>
-    </div>
+    <pre><code id="json_el" class="language-json"></code></pre>
 
-    <pre id="json_el"></pre>
 
     <!--  libs  -->
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/2.2.4/jquery.min.js"></script>
     <script src="/static/js/lib/detectIncognito.js"></script>
 
     <!-- helpers  -->
@@ -46,94 +21,52 @@
     <!--  services  -->
     <script src="/static/js/services/Cookie.js"></script>
     <script src="/static/js/services/DetectorFactory.js"></script>
+    <script src="/static/js/services/SessionRepository.js"></script>
 
     <!-- main   -->
     <script src="/static/js/detectors.js"></script>
 
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.7.0/highlight.min.js"></script>
     <script>
+
       const cookie = new Cookie();
+      const detectorFactory = new DetectorFactory();
+      const sessionRepository = new SessionRepository({
+        url: 'update?id={{ context.session_id }}',
+      });
 
-      function _detectScreen() {
-        addRow("", "<b>Screen:</b>", "");
-        addRow("is_mobile", "is mobile", isMobileByScreen());
-        let data = detectScreen()
+      detectorFactory.add("detectGPU", detectGPU);
+      detectorFactory.add("detectScreen", detectScreen);
+      detectorFactory.add("getNetworkInfo", getNetworkInfo);
+      detectorFactory.add("getNavigatorData", getNavigatorData);
+      detectorFactory.add("JSVersion", getJSVersion);
+      detectorFactory.add("detectPublicIP", detectPublicIP);
+      detectorFactory.add("detectBattery", detectBattery);
+      detectorFactory.add("browserMode", browserMode);
 
-        addRow("width, height", "Device screen", data["width"]+ " x " + data["height"]);
-        addRow(
-          "availWidth, availHeight",
-          "Device screen width and height minus the operating system taskbar (if present)",
-          data["availWidth"]+ " x " + data["availHeight"]
-          );
-        addRow(
-          "innerWidth, innerHeight",
-          "Browser Window Size. Device screen width and height minus the operating system taskbar (if present)",
-          data["innerWidth"]+ " x " + data["innerHeight"]
-          );
-        addRow(
-          "outerWidth, outerHeight",
-          "Browser Window Size. Device screen width and height minus the operating system taskbar (if present)",
-          data["outerWidth"]+ " x " + data["outerHeight"]
-          );
-
-        addRow("clientWidth", "Full width of the HTML page as coded, minus the vertical scroll bar.", data["clientWidth"]);
-        addRow("clientHeight", "Inner height of the HTML document body, including padding but not the horizontal scrollbar height, border, or margin.", data["clientHeight"]);
+      function displayJson(obj) {
+        const str = JSON.stringify(obj, undefined, 4);
+        el = document.getElementById("json_el");
+        el.innerHTML = str;
+        hljs.highlightAll();
       }
 
-      function updateTable() {
-        _detectScreen();
-        addRow("JSVersion", "JS Version", getJSVersion());
+      async function startDetection() {
+        // {% if speed_test is sameas true %} await fastSpeedTest(updateData);{% endif %}
 
-        _cookies();
-        _headers();
-        _detectGPU();
-        _navigatorData();
-      }
-      function _navigatorData() {
-        addRow("", "<b>Navigator Data:</b>", "");
-        let data = getNavigatorData();
-        addRow("appVersion", "App Version", data["appVersion"]);
-        addRow("javaEnabled", "Java Enabled", data["javaEnabled"]);
-        addRow("language", "Language", data["language"]);
-        addRow("pdfViewerEnabled", "PDF Viewer Enabled", data["pdfViewerEnabled"]);
-        addRow("platform", "Platform", data["platform"]);
-        addRow("hardwareConcurrency", "Hardware Concurrency", data["hardwareConcurrency"]);
+        const getAll = await detectorFactory.getAll();
+        await displayJson(getAll);
+        await sessionRepository.update(getAll);
       }
 
-      function _detectGPU() {
-        addRow("", "<b>GPU:</b>", "");
-        let data = detectGPU();
-        addRow("RENDERER", "Render", data["RENDERER"]);
-        addRow("UNMASKED_RENDERER_WEBGL", "Render WebGL", data["UNMASKED_RENDERER_WEBGL"]);
-        addRow("UNMASKED_VENDOR_WEBGL", "Vendor WebGL", data["UNMASKED_VENDOR_WEBGL"]);
-      }
-
-      function _cookies() {
-        addRow("", "<b>Cookies:</b>", "");
-        let cookies = cookie.getCookies();
-        for(const key in cookies) {
-          addRow(key, "Cookie variable", cookies[key]);
-        }
-      }
-
-      function _headers() {
-        addRow("", "<b>Headers:</b>", "");
-        let headers = JSON.parse('{{ context.headers | tojson | safe}}');
-        for(const key in headers) {
-          addRow(key, "Headers variable", headers[key]);
-        }
-      }
-
-      (function(d) {
-        updateTable();
-
+      (async function() {
         cookie.setCookie("_session_id", "{{ context.session_id }}", 7);
         cookie.setCookie("_session_time", (new Date()).toISOString(), 7);
 
-      //  startDetection();
-         // window.history.pushState("", "Redirect", url.pathname);
+        await detectorFactory.init();
+        await startDetection();
       })(document)
-      // Можно обфусцировать дело
-      //
+
     </script>
   </body>
 </html>

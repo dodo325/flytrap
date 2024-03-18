@@ -15,7 +15,7 @@ pep517~=0.13
 click==8.1.3
 pytest==7.1.3
 # pytest-runner==6.0.0
-black~=22.10  # https://github.com/psf/black
+black==24.3.0  # https://github.com/psf/black
 
 selenium==4.5.0  # https://github.com/SeleniumHQ/Selenium
 Flask-Testing==0.8.1  # https://github.com/jarus/flask-testing
